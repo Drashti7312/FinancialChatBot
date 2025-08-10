@@ -6,7 +6,7 @@ from logger import setup_logger, log_exception, log_function_entry, log_function
 logger = setup_logger(__name__)
 
 class Settings(BaseSettings):
-    MONGODB_URL: str = "mongodb://localhost:27017"
+    MONGODB_URL: str = os.getenv("MONGODB_URL")
     MONGODB_DB_NAME: str = "financial_chatbot"
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY")
     GOOGLE_GEMINI_MODEL: str = "gemini-1.5-flash"

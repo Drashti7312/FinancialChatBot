@@ -10,7 +10,7 @@ from service.link_service import LinkService
 from service.chat_service import ChatService
 from logger import setup_logger, log_exception, log_function_entry, log_function_exit
 import sys
-from app.utility import Utility
+from utility import Utility
 from fastapi.middleware.cors import CORSMiddleware
 
 # Setup logging
