@@ -1,4 +1,5 @@
 from typing import Dict, Any, List, Optional
+import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
@@ -46,7 +47,7 @@ class ToolOrchestrator:
             log_exception(logger, e, "ToolOrchestrator initialization")
             log_function_exit(logger, "__init__", result="initialization_failed")
             raise
-    
+        
     def _build_graph(self):
         """Build the LangGraph orchestration graph"""
         log_function_entry(logger, "_build_graph")
@@ -67,9 +68,21 @@ class ToolOrchestrator:
             builder.add_edge("generate_response", END)
             
             graph = builder.compile()
+            
+            # Save the graph visualization as PNG
+            try:
+                png_data = graph.get_graph().draw_mermaid_png()
+                os.makedirs("solutions", exist_ok=True)
+                with open("solutions/flow.png", "wb") as f:
+                    f.write(png_data)
+                logger.info("Graph visualization saved as flow.png")
+            except Exception as viz_error:
+                logger.warning(f"Could not save graph visualization: {viz_error}")
+            
             logger.debug("Orchestration graph built successfully")
             log_function_exit(logger, "_build_graph", result="graph_compiled")
             return graph
+            
         except Exception as e:
             log_exception(logger, e, "_build_graph")
             log_function_exit(logger, "_build_graph", result="error")

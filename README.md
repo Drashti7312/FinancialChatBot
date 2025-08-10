@@ -11,7 +11,12 @@ A multilingual, AI-powered financial assistant that can:
 - Generate and download financial charts
 
 Backend: **Python (≥3.10)**  
-Frontend: **Node.js + React**
+Frontend: **Node.js + React**  
+**Backend Default Port**: `localhost:8000`  
+**Frontend Default Port**: `localhost:3000`
+
+> ⚠ If you change the backend port, update it in `.env`  
+> If you change the frontend port, update it in `main.py` under the CORS `origin` list.
 
 ---
 
@@ -21,6 +26,7 @@ Frontend: **Node.js + React**
 ```bash
 git clone https://github.com/Drashti7312/FinancialChatBot.git
 cd FinancialChatBot
+
 ````
 
 ---
@@ -61,7 +67,7 @@ cd FinancialChatBot
    ```bash
    npm run dev
    ```
-
+Runs on: http://localhost:3000 by default
 ---
 
 ### 4️⃣ Environment Variables
@@ -143,6 +149,27 @@ Defined in `mcp.json`:
 | **web\_research**              | Fetch and analyze content from a URL to answer queries.                                              |
 | **statistical\_analysis**      | Perform statistical computations on Excel/CSV datasets.                                              |
 | **general\_query**             | Handle general financial queries with conversation context.                                          |
+
+---
+
+## 🧠 LangGraph Orchestration
+
+This chatbot uses the **LangGraph** approach to define a clear execution flow for handling user messages.
+
+**Flow Explanation**:
+
+1. **detect\_user\_language** → Identify the language of the incoming message for multilingual support.
+2. **classify\_intent** → Determine if the user wants financial analysis, document summary, general chat, etc.
+3. **execute\_tool** → Run the selected MCP tool (financial analysis, summarization, etc.).
+4. **generate\_response** → Format and return the final reply to the user.
+
+This modular state-based graph ensures that new tools or steps can be added without rewriting the entire logic.
+
+**Flow Diagram**:  
+![LangGraph Flow Diagram](solutions/flow.png)
+
+---
+
 
 ---
 
