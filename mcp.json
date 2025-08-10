@@ -1,0 +1,304 @@
+{
+  "mcpVersion": "2025-08-09",
+  "servers": {
+    "financial_chatbot": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "financial_trend_analysis",
+        "description": "Analyze financial trends from Excel/CSV data and generate insights with visualizations",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "message_id": {
+              "type": "string",
+              "description": "Unique identifier for the message/request"
+            },
+            "file_data": {
+              "type": "string",
+              "description": "Base64 encoded Excel/CSV file data"
+            },
+            "file_type": {
+              "type": "string",
+              "description": "File type: 'excel' or 'csv'",
+              "enum": [
+                "excel",
+                "csv"
+              ],
+              "default": "excel"
+            },
+            "sheet_name": {
+              "type": "string",
+              "description": "Name of the Excel sheet to analyze (optional)",
+              "default": null
+            },
+            "quarters": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Quarters to analyze (e.g., ['Q1', 'Q2'])",
+              "default": [
+                "Q1",
+                "Q2"
+              ]
+            },
+            "metric": {
+              "type": "string",
+              "description": "Financial metric to analyze (e.g., 'revenue', 'sales', 'profit')",
+              "default": "revenue"
+            }
+          },
+          "required": [
+            "message_id",
+            "file_data"
+          ]
+        }
+      }
+    },
+    {
+      "name": "document_summarizer",
+      "description": "Summarize PDF or DOCX documents using Google Generative AI",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "file_data": {
+            "type": "string",
+            "description": "Base64 encoded file data or raw bytes"
+          },
+          "file_type": {
+            "type": "string",
+            "enum": [
+              "pdf",
+              "docx"
+            ],
+            "description": "Type of the document file (pdf or docx)"
+          }
+        },
+        "required": [
+          "file_data",
+          "file_type"
+        ]
+      }
+    },
+    {
+      "name": "extract_table_data",
+      "description": "Extracts specific data points and top entries from tables and structured data",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_data": {
+            "type": "string",
+            "description": "Base64 encoded file data (CSV or Excel)"
+          },
+          "file_type": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "excel",
+              "xlsx",
+              "xls"
+            ],
+            "description": "Type of file being processed",
+            "default": "excel"
+          },
+          "sheet_name": {
+            "type": "string",
+            "description": "Name of the Excel sheet to analyze (optional)",
+            "default": null
+          },
+          "extraction_type": {
+            "type": "string",
+            "enum": [
+              "top_n",
+              "filter",
+              "search",
+              "aggregate"
+            ],
+            "description": "Type of data extraction to perform",
+            "default": "top_n"
+          },
+          "sort_column": {
+            "type": "string",
+            "description": "Column to sort by for top_n extraction",
+            "default": "sales"
+          },
+          "filter_criteria": {
+            "type": "object",
+            "description": "Criteria for filtering data"
+          },
+          "n_results": {
+            "type": "integer",
+            "description": "Number of top results to return",
+            "default": 5
+          },
+          "ascending": {
+            "type": "boolean",
+            "description": "Sort order (True for ascending, False for descending)",
+            "default": false
+          },
+          "search_term": {
+            "type": "string",
+            "description": "Search term for search extraction type"
+          },
+          "group_column": {
+            "type": "string",
+            "description": "Column to group by for aggregate extraction type"
+          }
+        },
+        "required": [
+          "file_data",
+          "file_type"
+        ]
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "comparative_analysis",
+        "description": "Compare financial data across multiple PDF/DOCX documents by extracting and analyzing tables",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "message_id": {
+              "type": "string",
+              "description": "Unique identifier for the message/request"
+            },
+            "documents": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "file_path": {
+                    "type": "string",
+                    "description": "Path to the document file or base64 encoded file data"
+                  },
+                  "document_type": {
+                    "type": "string",
+                    "enum": [
+                      "pdf",
+                      "docx"
+                    ],
+                    "description": "Document type - either 'pdf' or 'docx'"
+                  },
+                  "document_name": {
+                    "type": "string",
+                    "description": "Name/identifier for the document"
+                  },
+                  "file_data": {
+                    "type": "string",
+                    "description": "Base64 encoded file data (optional if file_path is provided)"
+                  }
+                },
+                "required": [
+                  "document_type",
+                  "document_name"
+                ]
+              }
+            },
+            "comparison_columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Specific columns to compare (optional)",
+              "default": []
+            }
+          },
+          "required": [
+            "message_id",
+            "documents"
+          ]
+        }
+      }
+    },
+    {
+      "name": "web_research",
+      "description": "Answer user questions based on web URL content using Google Generative AI",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The web URL to fetch content from"
+          },
+          "query": {
+            "type": "string",
+            "description": "The user's question about the web content"
+          }
+        },
+        "required": [
+          "url",
+          "query"
+        ]
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "statistical_analysis",
+        "description": "Performs statistical analysis on CSV and Excel files",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "file_data": {
+              "type": "string",
+              "description": "Base64 encoded file data (CSV or Excel)"
+            },
+            "file_type": {
+              "type": "string",
+              "enum": [
+                "csv",
+                "excel",
+                "xlsx",
+                "xls"
+              ],
+              "description": "Type of file being analyzed"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Specific columns to analyze (optional, analyzes all numeric columns if not specified)",
+              "default": []
+            }
+          },
+          "required": [
+            "file_data",
+            "file_type"
+          ]
+        }
+      }
+    },
+    {
+      "name": "general_query",
+      "description": "Handles general financial queries and conversations with financial context validation",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "User query to be processed"
+          },
+          "context": {
+            "type": "string",
+            "description": "Additional context from conversation history"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      }
+    }
+  ]
+}
