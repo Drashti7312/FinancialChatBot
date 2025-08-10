@@ -15,47 +15,6 @@ class IntentClassifier:
                 temperature=0.1
             )
             
-            # Updated intent patterns to match the tool mapping
-            self.intent_patterns = {
-                "statistical_analysis": [
-                    r"analyze.*csv", r"analyze.*excel", r"data.*analysis", 
-                    r"statistical.*analysis", r"average.*monthly", r"correlation",
-                    r"standard.*deviation", r"statistical.*summary", r"descriptive.*statistics",
-                    r"mean.*median", r"analyze.*data", r"csv.*analysis"
-                ],
-                "financial_trend_analysis": [
-                    r"trend.*analysis", r"show.*trend", r"trend.*over.*time",
-                    r"growth.*pattern", r"trend.*comparison", r"revenue.*trend", 
-                    r"profit.*analysis", r"financial.*trend", r"quarterly.*trend",
-                    r"sales.*trend", r"trend.*in.*data"
-                ],
-                "extract_table_data": [
-                    r"extract.*table", r"get.*data.*table", r"table.*information",
-                    r"top.*products", r"extract.*from.*table", r"table.*data",
-                    r"get.*top.*records", r"filter.*data", r"search.*in.*table"
-                ],
-                "document_summarizer": [
-                    r"summarize.*document", r"summary.*pdf", r"key.*points",
-                    r"summarize.*docx", r"overview.*document", r"document.*summary",
-                    r"summarize.*file", r"main.*points"
-                ],
-                "web_research": [
-                    r"latest.*news", r"current.*market", r"web.*research",
-                    r"online.*report", r"market.*trends.*online", r"search.*web",
-                    r"web.*query", r"url.*analysis", r"website.*content"
-                ],
-                "comparative_analysis": [
-                    r"compare.*documents", r"comparative.*analysis", r"comparison.*between",
-                    r"compare.*files", r"difference.*between", r"contrast.*documents",
-                    r"compare.*reports", r"side.*by.*side", r"vs", r"versus"
-                ],
-                "general_query": [
-                    r"what.*is", r"how.*to", r"explain", r"tell.*me.*about",
-                    r"last.*question", r"previous.*conversation", r"help.*me",
-                    r"can.*you", r"hello", r"hi", r"thanks", r"thank.*you"
-                ]
-            }
-            
             logger.info("IntentClassifier initialized successfully")
             log_function_exit(logger, "__init__", result="initialization_successful")
             
@@ -68,17 +27,7 @@ class IntentClassifier:
         """Classify user intent based on query"""
         log_function_entry(logger, "classify_intent", query_length=len(query))
         
-        try:
-            query_lower = query.lower()
-            
-            # Rule-based classification first
-            for intent, patterns in self.intent_patterns.items():
-                for pattern in patterns:
-                    if re.search(pattern, query_lower):
-                        logger.debug(f"Intent classified via rule-based: {intent}")
-                        log_function_exit(logger, "classify_intent", result=f"rule_based_{intent}")
-                        return intent
-            
+        try: 
             # LLM-based classification as fallback
             logger.debug("Rule-based classification failed, using LLM-based classification")
             prompt = f"""
@@ -93,13 +42,12 @@ class IntentClassifier:
             - comparative_analysis: For comparing multiple documents or datasets side by side
             - general_query: For general questions, greetings, and conversations
             - Refer Previous Messages if there is any kind of confusion
-
+            If user mentioned online search or web urls or url, latest news or any kind of web research, classify as web_research not as general_query
             Query: "{query}"
             Previous Messages: "{context}"
 
             Return only the intent name exactly as listed above.
             """
-            print(prompt, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             response = await self.llm.ainvoke(prompt)
             intent = response.content.strip().lower()
             

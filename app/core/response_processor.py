@@ -95,7 +95,6 @@ class ResponseProcessor:
         try:
             # Convert tool_result to string for prompt
             tool_data = json.dumps(tool_result, indent=2, default=str)
-            print(tool_data, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # Language instruction for the prompt
             language_instruction = ""
             if target_language != "English":

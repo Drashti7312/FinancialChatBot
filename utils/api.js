@@ -26,8 +26,13 @@ export async function uploadDocument({ session_id, user_id, file }) {
 // Add Link
 export async function addLink({ session_id, user_id, url, title }) {
   const resp = await api.post(
-    `/add-link?session_id=${encodeURIComponent(session_id)}&user_id=${encodeURIComponent(user_id)}`,
-    { url, title }
+    "/add-link",
+    {
+      session_id,
+      user_id,
+      url,
+      title
+    }
   );
   return resp.data;
 }

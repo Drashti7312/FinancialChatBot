@@ -90,7 +90,6 @@ class ToolOrchestrator:
 
     async def _detect_user_language(self, state: OrchestratorState) -> Dict[str, Any]:
         '''Fetch or Detect User Language'''
-        print("calling, please 11111111111111111111111111111")
         log_function_entry(logger, "_detect_user_language", session_id=state.get("session_id"), user_id=state.get("user_id"))
         
         # Add debug log to confirm function is being called
@@ -101,7 +100,6 @@ class ToolOrchestrator:
             user_id = state.get("user_id")
             last_message = state["messages"][-1]
             user_query = last_message.content if hasattr(last_message, 'content') else str(last_message)
-            print("2222222222222222222222222222222222")
             logger.debug(f"Detecting language for query: {user_query[:100]}...")
             
             # Call utility function to get or detect language
@@ -110,7 +108,6 @@ class ToolOrchestrator:
                 user_id=user_id,
                 user_query=user_query
             )
-            print("detected language 333333333333333333333", detected_language)
             logger.info(f"Language detected/retrieved: {detected_language} for user: {user_id}")
             log_function_exit(logger, "_detect_user_language", result=f"language={detected_language}")
             return {"user_query_language": detected_language}
@@ -181,7 +178,6 @@ class ToolOrchestrator:
         logger.info(f"_generate_response_node called for session: {state.get('session_id')}")
         
         try:
-            print(state, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             tool_result = state["tool_result"]
             last_message = state["messages"][-1]
             query = last_message.content if hasattr(last_message, 'content') else str(last_message)
@@ -197,7 +193,6 @@ class ToolOrchestrator:
             # Handle successful tool execution
             if tool_result.get("success", False):
                 logger.info("Processing successful tool result")
-                print(user_query_language, "###########################")
                 response_content = await response_processor.process_and_format_response(
                     tool_result=tool_result,
                     intent=intent,
@@ -211,7 +206,6 @@ class ToolOrchestrator:
             else:
                 # Handle tool failure cases
                 logger.info("Processing failed tool result")
-                print(user_query_language, "###########################")
                 response_content = await response_processor.handle_tool_failure(
                     tool_result=tool_result,
                     user_query=query,

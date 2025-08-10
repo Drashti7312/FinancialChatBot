@@ -1,5 +1,4 @@
 import requests
-from abc import ABC, abstractmethod
 from typing import Any, Dict
 from bs4 import BeautifulSoup
 from langchain_google_genai import ChatGoogleGenerativeAI
