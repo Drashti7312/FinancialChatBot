@@ -23,7 +23,7 @@ class ResponseProcessor:
         tool_result: Dict[str, Any], 
         intent: str, 
         user_query: str,
-        response_language: str = "English"
+        user_query_language: str = "English"
     ) -> str:
         """
         Main method to process tool result and format response in one LLM call
@@ -32,7 +32,7 @@ class ResponseProcessor:
             tool_result: Result from tool execution
             intent: User's intent classification
             user_query: Original user query
-            response_language: Target language for response
+            user_query_language: Target language for response
             
         Returns:
             Formatted response string
@@ -41,7 +41,7 @@ class ResponseProcessor:
             logger, 
             "process_and_format_response", 
             intent=intent, 
-            language=response_language,
+            language=user_query_language,
             tool_success=tool_result.get("success", False)
         )
         
@@ -51,22 +51,22 @@ class ResponseProcessor:
                 tool_result=tool_result,
                 intent=intent,
                 user_query=user_query,
-                target_language=response_language
+                target_language=user_query_language
             )
             
-            logger.info(f"Response processed successfully in {response_language}")
+            logger.info(f"Response processed successfully in {user_query_language}")
             log_function_exit(logger, "process_and_format_response", result="success")
             return final_response
             
         except Exception as e:
-            log_exception(logger, e, f"process_and_format_response - intent: {intent}, language: {response_language}")
+            log_exception(logger, e, f"process_and_format_response - intent: {intent}, language: {user_query_language}")
             log_function_exit(logger, "process_and_format_response", result="error")
             
             # Fallback response
             fallback_msg = "I apologize, but I encountered an error while processing your request."
-            if response_language != "English":
+            if user_query_language != "English":
                 try:
-                    fallback_msg = await self._translate_simple_text(fallback_msg, response_language)
+                    fallback_msg = await self._translate_simple_text(fallback_msg, user_query_language)
                 except:
                     pass
             return fallback_msg
@@ -95,7 +95,7 @@ class ResponseProcessor:
         try:
             # Convert tool_result to string for prompt
             tool_data = json.dumps(tool_result, indent=2, default=str)
-            
+            print(tool_data, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             # Language instruction for the prompt
             language_instruction = ""
             if target_language != "English":
@@ -117,13 +117,14 @@ class ResponseProcessor:
             
             Instructions:
             1. Structure the information clearly and professionally
-            2. Use bullet points or numbered lists when appropriate
+            2. If possible, use tables to organize complex information, else provide data in a clear format
             3. Include all relevant numbers, dates, and key details
             4. Make the response conversational but professional
             5. If the tool failed, explain what went wrong and suggest alternatives
             6. Focus on what's most important to the user
             7. Keep the response concise but complete
             8. Directly answer the user's question based on the tool result
+            9. Do not add anything other than tool result, just modify tool result as needed
             
             {language_instruction}
             
@@ -193,7 +194,7 @@ class ResponseProcessor:
         tool_result: Dict[str, Any], 
         user_query: str, 
         intent: str,
-        response_language: str = "English"
+        user_query_language: str = "English"
     ) -> str:
         """
         Handle tool failure cases with helpful error messages and suggestions in one LLM call
@@ -202,29 +203,31 @@ class ResponseProcessor:
             tool_result: Failed tool result
             user_query: Original user query
             intent: User's intent
-            response_language: Target language for response
+            user_query_language: Target language for response
             
         Returns:
             Helpful error response with suggestions
         """
-        log_function_entry(logger, "handle_tool_failure", intent=intent, language=response_language)
+        log_function_entry(logger, "handle_tool_failure", intent=intent, language=user_query_language)
         
         try:
             error_info = tool_result.get("error", "Unknown error occurred")
             
             # Language instruction
             language_instruction = ""
-            if response_language != "English":
-                language_instruction = f"Respond in {response_language} while maintaining professional tone."
+            if user_query_language != "English":
+                language_instruction = f"Respond in {user_query_language} while maintaining professional tone."
             else:
                 language_instruction = "Respond in English."
             
             prompt = f"""
+            You are a Expert Financial ChatBot
             The tool execution failed for a financial query. Provide a helpful response that:
             1. Acknowledges the issue professionally
             2. Explains what might have gone wrong (in simple terms)
-            3. Suggests alternative approaches or solutions
-            4. Offers to help with related queries
+            3. If the issue related document suggest them to upload relevant documents 
+
+            Answer in max in one or two line. 
             
             User Query: {user_query}
             Intent: {intent}
@@ -238,19 +241,19 @@ class ResponseProcessor:
             response = await self.llm.ainvoke(prompt)
             failure_response = response.content.strip()
             
-            logger.info(f"Tool failure handled successfully in {response_language}")
+            logger.info(f"Tool failure handled successfully in {user_query_language}")
             log_function_exit(logger, "handle_tool_failure", result="handled")
             return failure_response
             
         except Exception as e:
-            log_exception(logger, e, f"handle_tool_failure - intent: {intent}, language: {response_language}")
+            log_exception(logger, e, f"handle_tool_failure - intent: {intent}, language: {user_query_language}")
             log_function_exit(logger, "handle_tool_failure", result="error")
             
             # Ultimate fallback
             fallback = "I apologize, but I'm currently unable to process your request. Please try again later or rephrase your question."
-            if response_language != "English":
+            if user_query_language != "English":
                 try:
-                    fallback = await self._translate_simple_text(fallback, response_language)
+                    fallback = await self._translate_simple_text(fallback, user_query_language)
                 except:
                     pass
             return fallback

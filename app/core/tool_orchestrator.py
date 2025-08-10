@@ -118,7 +118,7 @@ class ToolOrchestrator:
             last_message = state["messages"][-1]
             query = last_message.content if hasattr(last_message, 'content') else str(last_message)
             
-            intent = await self.intent_classifier.classify_intent(query)
+            intent = await self.intent_classifier.classify_intent(query, state["messages"][-4:])
             logger.debug(f"Intent classified: {intent} for query: {query[:100]}...")
             
             log_function_exit(logger, "_classify_intent_node", result=f"intent={intent}")
@@ -131,7 +131,6 @@ class ToolOrchestrator:
     async def _execute_tool_node(self, state: OrchestratorState) -> Dict[str, Any]:
         """Execute the appropriate tool based on intent"""
         log_function_entry(logger, "_execute_tool_node", session_id=state.get("session_id"), user_id=state.get("user_id"), intent=state.get("intent"))
-        print(state, 4444444444444444444444444444444444444444444)
         # Add debug log to confirm function is being called
         logger.info(f"_execute_tool_node called for session: {state.get('session_id')}, intent: {state.get('intent')}")
         
@@ -169,13 +168,14 @@ class ToolOrchestrator:
         logger.info(f"_generate_response_node called for session: {state.get('session_id')}")
         
         try:
+            print(state, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             tool_result = state["tool_result"]
             last_message = state["messages"][-1]
             query = last_message.content if hasattr(last_message, 'content') else str(last_message)
-            response_language = state.get("responce_language", "English")  # Fixed typo in key name
+            user_query_language = state.get("user_query_language", "English")
             intent = state.get("intent", "general_query")
             
-            logger.debug(f"Generating response in language: {response_language}")
+            logger.debug(f"Generating response in language: {user_query_language}")
             
             # Import ResponseProcessor here to avoid circular imports
             from .response_processor import ResponseProcessor
@@ -184,12 +184,12 @@ class ToolOrchestrator:
             # Handle successful tool execution
             if tool_result.get("success", False):
                 logger.info("Processing successful tool result")
-                
+                print(user_query_language, "###########################")
                 response_content = await response_processor.process_and_format_response(
                     tool_result=tool_result,
                     intent=intent,
                     user_query=query,
-                    response_language=response_language
+                    user_query_language=user_query_language
                 )
                 
                 ai_message = AIMessage(content=response_content)
@@ -198,12 +198,12 @@ class ToolOrchestrator:
             else:
                 # Handle tool failure cases
                 logger.info("Processing failed tool result")
-                
+                print(user_query_language, "###########################")
                 response_content = await response_processor.handle_tool_failure(
                     tool_result=tool_result,
                     user_query=query,
                     intent=intent,
-                    response_language=response_language
+                    user_query_language=user_query_language
                 )
                 
                 ai_message = AIMessage(content=response_content)
@@ -217,17 +217,17 @@ class ToolOrchestrator:
             log_function_exit(logger, "_generate_response_node", result="error")
             
             # Fallback error response
-            response_language = state.get("responce_language", "English")
+            user_query_language = state.get("user_query_language", "English")
             error_message_content = "I apologize, but I encountered an error while processing your request."
             
             # Try to translate error message if needed
-            if response_language != "English":
+            if user_query_language != "English":
                 try:
                     from .response_processor import ResponseProcessor
                     response_processor = ResponseProcessor(self.llm)
                     error_message_content = await response_processor._translate_simple_text(
                         error_message_content, 
-                        response_language
+                        user_query_language
                     )
                 except Exception as translate_error:
                     log_exception(logger, translate_error, "Error message translation failed")

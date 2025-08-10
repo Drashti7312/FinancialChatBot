@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* small custom */
+body {
+  @apply bg-slate-50 text-slate-800;
+}
+
+.chat-bubble {
+  @apply p-3 rounded-lg max-w-[75%];
+}
+
+.chat-user {
+  @apply bg-white self-end shadow border border-slate-200;
+}
+
+.chat-bot {
+  @apply bg-slate-100 self-start border border-slate-200;
+}
+
+/* Buttons */
+.btn-primary {
+  @apply bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-blue-700 transition;
+}
+
+.btn-secondary {
+  @apply bg-slate-100 text-slate-700 font-medium py-2 px-4 rounded-lg hover:bg-slate-200 transition;
+}
+
+/* Inputs */
+.input-field {
+  @apply border border-slate-300 rounded-lg py-2 px-3 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* Session item */
+.session-item button {
+  @apply w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 transition;
+}

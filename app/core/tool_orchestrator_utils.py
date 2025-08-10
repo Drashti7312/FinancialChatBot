@@ -326,12 +326,12 @@ class ToolOrchestratorUtils:
         log_function_entry(logger, "get_conversation_context", messages_count=len(messages))
         
         try:
-            recent_messages = messages[-5:]  # Last 5 messages
+            recent_messages = messages[-10:]  # Last 10 messages
             context = ""
             for msg in recent_messages:
                 if hasattr(msg, 'content'):
                     role = "User" if isinstance(msg, HumanMessage) else "Assistant"
-                    context += f"{role}: {msg.content[:200]}...\n"
+                    context += f"{role}: {msg.content}...\n"
             
             logger.debug(f"Generated conversation context from {len(recent_messages)} messages")
             log_function_exit(logger, "get_conversation_context", result="context_generated")
@@ -371,8 +371,8 @@ class ToolOrchestratorUtils:
                 {"user_id": user_id, "session_id": session_id}
             )
             
-            if language_preference and language_preference.get("language"):
-                detected_language = language_preference["language"]
+            if language_preference and language_preference.get("selected_language"):
+                detected_language = language_preference["selected_language"]
                 logger.debug(f"Found existing language preference: {detected_language} for user: {user_id}")
                 log_function_exit(logger, "get_or_detect_user_language", result=f"cached_language={detected_language}")
                 return detected_language

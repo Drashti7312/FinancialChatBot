@@ -6,7 +6,7 @@ from database.database import db_manager
 from langchain_core.messages import HumanMessage, AIMessage
 from logger import setup_logger, log_exception, log_function_entry, log_function_exit
 import uuid
-from utils import Utility
+
 
 logger = setup_logger(__name__)
 
@@ -53,8 +53,6 @@ class ChatService:
             )
             logger.info(f"Received orchestrator response: {response}")
 
-            # updated_response = Utility()._process_and_store_charts(
-            #     response, session_id, user_id, message_uuid)
             # Add AI response to history
             ai_msg = AIMessage(content=response)
             await chat_history.aadd_message(ai_msg, message_uuid=message_uuid)

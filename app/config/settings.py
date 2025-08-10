@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     MONGODB_DB_NAME: str = "financial_chatbot"
     GOOGLE_API_KEY: str = os.getenv("GOOGLE_API_KEY")
     GOOGLE_GEMINI_MODEL: str = "gemini-1.5-flash"
+    
+    NEXT_PUBLIC_API_BASE: str = os.getenv("NEXT_PUBLIC_API_BASE")
+    NEXT_PUBLIC_DEFAULT_USER_ID: str = os.getenv("NEXT_PUBLIC_DEFAULT_USER_ID")
 
     SUPPORTED_EXTENSIONS: List[str] = ['csv', 'xlsx', 'xls', 'pdf', 'docx']
 

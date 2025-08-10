@@ -64,7 +64,7 @@ class IntentClassifier:
             log_function_exit(logger, "__init__", result="initialization_failed")
             raise
     
-    async def classify_intent(self, query: str) -> str:
+    async def classify_intent(self, query: str, context: list) -> str:
         """Classify user intent based on query"""
         log_function_entry(logger, "classify_intent", query_length=len(query))
         
@@ -92,12 +92,14 @@ class IntentClassifier:
             - web_research: For researching current market/financial information online, analyzing web content
             - comparative_analysis: For comparing multiple documents or datasets side by side
             - general_query: For general questions, greetings, and conversations
-            
+            - Refer Previous Messages if there is any kind of confusion
+
             Query: "{query}"
-            
+            Previous Messages: "{context}"
+
             Return only the intent name exactly as listed above.
             """
-            
+            print(prompt, "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             response = await self.llm.ainvoke(prompt)
             intent = response.content.strip().lower()
             
